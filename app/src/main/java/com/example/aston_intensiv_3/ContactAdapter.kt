@@ -1,7 +1,9 @@
 package com.example.aston_intensiv_3
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -36,9 +38,19 @@ class ContactAdapter() :
             contactSurname.text = item.lastName
             contactNumber.text = item.phoneNumber
 
+            root.setOnClickListener {
+                val dialog = EditContactDialog()
+                dialog.arguments = Bundle().apply {
+                    putParcelable("CONTACT", item)
+                }
+                dialog.show(
+                    (holder.itemView.context as AppCompatActivity).supportFragmentManager,
+                    "EditContactDialog"
+                )
+            }
+
+
         }
-
-
 
 
     }

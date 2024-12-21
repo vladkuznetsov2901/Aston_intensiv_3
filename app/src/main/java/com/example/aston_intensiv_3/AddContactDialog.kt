@@ -32,7 +32,7 @@ class AddContactDialog : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.addButton.setOnClickListener {
+        binding.saveButton.setOnClickListener {
             val firstName = binding.firstNameInput.text.toString().trim()
             val lastName = binding.lastNameInput.text.toString().trim()
             val phoneNumber = binding.phoneNumberInput.text.toString().trim()

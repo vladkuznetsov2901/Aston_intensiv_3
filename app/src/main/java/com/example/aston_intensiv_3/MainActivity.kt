@@ -10,7 +10,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.aston_intensiv_3.databinding.ActivityMainBinding
 import kotlin.random.Random
 
-class MainActivity : AppCompatActivity(), AddContactDialog.OnContactAddedListener {
+class MainActivity : AppCompatActivity(), AddContactDialog.OnContactAddedListener,
+    EditContactDialog.OnContactUpdatedListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var contactAdapter: ContactAdapter
     private val viewModel: MainViewModel by viewModels()
@@ -91,6 +92,16 @@ class MainActivity : AppCompatActivity(), AddContactDialog.OnContactAddedListene
         viewModel.contacts.add(newContact)
         contactAdapter.submitList(viewModel.contacts.toList())
         contactAdapter.notifyItemChanged(itemPosition)
+    }
+
+    override fun onContactUpdated(contact: Contact) {
+        val index = viewModel.contacts.indexOfFirst { it.id == contact.id }
+        if (index != -1) {
+            viewModel.contacts[index] = contact
+            contactAdapter.submitList(viewModel.contacts.toList())
+            contactAdapter.notifyItemChanged(index)
+
+        }
     }
 
 
