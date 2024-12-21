@@ -1,6 +1,7 @@
 package com.example.aston_intensiv_3
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -34,6 +35,37 @@ class MainActivity : AppCompatActivity(), AddContactDialog.OnContactAddedListene
         binding.addButton.setOnClickListener {
             val dialog = AddContactDialog()
             dialog.show(supportFragmentManager, "AddContactDialog")
+        }
+
+        binding.deleteBtn.setOnClickListener {
+            contactAdapter.isMultiSelectMode = true
+            contactAdapter.notifyDataSetChanged()
+            binding.addButton.visibility = View.GONE
+            binding.deleteButton.visibility = View.VISIBLE
+            binding.cancelButton.visibility = View.VISIBLE
+
+        }
+
+        binding.deleteButton.setOnClickListener {
+            val selectedIds = contactAdapter.selectedContacts
+            viewModel.contacts.removeAll { it.id in selectedIds }
+            contactAdapter.submitList(viewModel.contacts.toList())
+            contactAdapter.isMultiSelectMode = false
+            contactAdapter.selectedContacts.clear()
+            contactAdapter.notifyDataSetChanged()
+            binding.addButton.visibility = View.VISIBLE
+            binding.deleteButton.visibility = View.GONE
+            binding.cancelButton.visibility = View.GONE
+        }
+
+        binding.cancelButton.setOnClickListener {
+            contactAdapter.isMultiSelectMode = false
+            contactAdapter.selectedContacts.clear()
+            contactAdapter.notifyDataSetChanged()
+            binding.addButton.visibility = View.VISIBLE
+            binding.deleteButton.visibility = View.GONE
+            binding.cancelButton.visibility = View.GONE
+
         }
 
     }

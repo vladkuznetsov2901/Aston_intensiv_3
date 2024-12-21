@@ -2,6 +2,7 @@ package com.example.aston_intensiv_3
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
@@ -16,6 +17,8 @@ import java.util.TimeZone
 
 class ContactAdapter() :
     ListAdapter<Contact, ContactAdapter.ContactViewHolder>(DiffUtilCallback()) {
+    var isMultiSelectMode = false
+    val selectedContacts = mutableSetOf<Int>()
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
@@ -33,6 +36,20 @@ class ContactAdapter() :
         val item = getItem(position)
         with(holder.binding) {
 
+            if (isMultiSelectMode) {
+                checkBox.visibility = View.VISIBLE
+                checkBox.isChecked = selectedContacts.contains(item.id)
+                checkBox.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        selectedContacts.add(item.id)
+                    } else {
+                        selectedContacts.remove(item.id)
+                    }
+                }
+            } else {
+                checkBox.visibility = View.GONE
+                checkBox.setOnCheckedChangeListener(null)
+            }
             contactId.text = item.id.toString()
             contactName.text = item.firstName
             contactSurname.text = item.lastName

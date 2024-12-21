@@ -42,6 +42,10 @@ class EditContactDialog : DialogFragment() {
             dismiss()
         }
 
+        binding.cancelButton.setOnClickListener {
+            dismiss()
+        }
+
         return builder.create()
     }
 }
