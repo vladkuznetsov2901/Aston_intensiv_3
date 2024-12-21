@@ -2,6 +2,7 @@ package com.example.aston_intensiv_3
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -9,24 +10,34 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.aston_intensiv_3.databinding.ActivityMainBinding
 import kotlin.random.Random
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AddContactDialog.OnContactAddedListener {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var contactAdapter: ContactAdapter
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val allContacts = generateContacts()
-        val contactAdapter = ContactAdapter()
+        contactAdapter = ContactAdapter()
         binding.contactRecycler.adapter = contactAdapter
         binding.contactRecycler.layoutManager = GridLayoutManager(this, 1)
 
-        contactAdapter.submitList(allContacts)
+        if (viewModel.contacts.isEmpty()) {
+            viewModel.contacts.addAll(generateContacts())
+        }
 
+        contactAdapter.submitList(viewModel.contacts)
+
+        binding.addButton.setOnClickListener {
+            val dialog = AddContactDialog()
+            dialog.show(supportFragmentManager, "AddContactDialog")
+        }
 
     }
 
-    fun generateContacts(): List<Contact> {
+    fun generateContacts(): MutableList<Contact> {
         val firstNames = listOf(
             "Иван",
             "Мария",
@@ -72,6 +83,14 @@ class MainActivity : AppCompatActivity() {
             )
         }
         return contacts
+    }
+
+    override fun onContactAdded(contact: Contact) {
+        val itemPosition = viewModel.contacts.size + 1
+        val newContact = contact.copy(id = itemPosition)
+        viewModel.contacts.add(newContact)
+        contactAdapter.submitList(viewModel.contacts.toList())
+        contactAdapter.notifyItemChanged(itemPosition)
     }
 
 
