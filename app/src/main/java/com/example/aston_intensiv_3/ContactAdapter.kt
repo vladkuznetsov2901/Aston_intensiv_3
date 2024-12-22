@@ -15,7 +15,9 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-class ContactAdapter() :
+class ContactAdapter(
+    private val updateContactsCallback: (List<Contact>) -> Unit
+) :
     ListAdapter<Contact, ContactAdapter.ContactViewHolder>(DiffUtilCallback()) {
     var isMultiSelectMode = false
     val selectedContacts = mutableSetOf<Int>()
@@ -71,6 +73,17 @@ class ContactAdapter() :
 
 
     }
+
+    fun moveItem(fromPosition: Int, toPosition: Int) {
+        val currentList = currentList.toMutableList()
+        val movedItem = currentList.removeAt(fromPosition)
+        currentList.add(toPosition, movedItem)
+
+        submitList(currentList)
+
+        updateContactsCallback(currentList)
+    }
+
 
 
     class ContactViewHolder(val binding: ContactItemBinding) :

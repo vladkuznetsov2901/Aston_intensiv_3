@@ -1,5 +1,6 @@
 package com.example.aston_intensiv_3
 
+import ItemTouchHelperCallback
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.aston_intensiv_3.databinding.ActivityMainBinding
 import kotlin.random.Random
 
@@ -17,15 +19,29 @@ class MainActivity : AppCompatActivity(), AddContactDialog.OnContactAddedListene
     private lateinit var contactAdapter: ContactAdapter
     private val viewModel: MainViewModel by viewModels()
 
+    companion object {
+        const val IS_DELETE = "isMultiSelectMode"
+        const val DELETE_BTN_VISIBLE = "deleteButton"
+        const val ADD_BTN_VISIBLE = "addButton"
+        const val CANCEL_BTN_VISIBLE = "cancelButton"
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        contactAdapter = ContactAdapter()
+
+        contactAdapter = ContactAdapter { updatedList ->
+            viewModel.contacts.clear()
+            viewModel.contacts.addAll(updatedList)
+        }
+
         binding.contactRecycler.adapter = contactAdapter
         binding.contactRecycler.layoutManager = GridLayoutManager(this, 1)
-
+        val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(contactAdapter))
+        itemTouchHelper.attachToRecyclerView(binding.contactRecycler)
         if (viewModel.contacts.isEmpty()) {
             viewModel.contacts.addAll(generateContacts())
         }
@@ -68,6 +84,23 @@ class MainActivity : AppCompatActivity(), AddContactDialog.OnContactAddedListene
 
         }
 
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(IS_DELETE, contactAdapter.isMultiSelectMode)
+        outState.putInt(DELETE_BTN_VISIBLE, binding.deleteButton.visibility)
+        outState.putInt(ADD_BTN_VISIBLE, binding.addButton.visibility)
+        outState.putInt(CANCEL_BTN_VISIBLE, binding.cancelButton.visibility)
+
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        contactAdapter.isMultiSelectMode = savedInstanceState.getBoolean(IS_DELETE)
+        binding.addButton.visibility = savedInstanceState.getInt(ADD_BTN_VISIBLE)
+        binding.deleteButton.visibility = savedInstanceState.getInt(DELETE_BTN_VISIBLE)
+        binding.cancelButton.visibility = savedInstanceState.getInt(CANCEL_BTN_VISIBLE)
     }
 
     fun generateContacts(): MutableList<Contact> {
